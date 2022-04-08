@@ -1,0 +1,142 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<title>CeCaFLUX - A powerful visual tool and the first user-friendly web server for effective inferring
+    intracellular metabolic flux from instationary 13C labeling data.</title>
+<head>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+    <link rel="stylesheet" href="css/buttons.css" type="text/css"/>
+    <link rel='stylesheet' type='text/css' href='css/wuxia-green.css'/>
+    <link rel='stylesheet' type='text/css' href='css/input_size.css'/>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <style type="text/css">
+        .reactions_table {
+            border-collapse: collapse;
+            background-color: #f6f6f6;
+            border: 2px solid #fdfdfd;
+            border-collapse: separate;
+            *border-collapse: collapsed;
+            border-left: 0;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+        }
+
+        .reactions_table th {
+            background: #CCCCCC;
+            padding: 7px 15px;
+            text-align: center;
+            vertical-align: middle;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+        }
+
+        .reactions_table td {
+            background: #C7DDEE none repeat-x scroll center left;
+            color: #474545;
+            font: 15px Verdana, Geneva, sans-serif;
+            padding: 7px 15px;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+            word-wrap: break-word;
+            word-break: break-all;
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main" style="padding: 10px">
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif;text-align:center;padding-top:15px;padding-bottom:15px;background-color:#f6f6f6;">
+                    <div style="width : 400px; margin: 0 auto; text-align: center">
+                        <p id="search_hint" style="color:red;display:none;width:390px;text-align:left;"></p>
+                        <p style="color:red;width:390px;text-align:center;" th:text="${no_search_result}" th:if="${no_search_result} != null"></p>
+                        <form action="search_genome_reaction" method="post">
+                            <P>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rxn ID: <input id="rxn_id_input" name="rxn_id" class="input_middle" type="text" th:value="${search_rxn_id} == null ? '' : ${search_rxn_id}" />
+                            </P>
+                            <P>
+                                &nbsp;Rxn name: <input id="rxn_name_input" name="rxn_name" class="input_middle" type="text"  th:value="${search_rxn_name} == null ? '' : ${search_rxn_name}"/>
+                            </P>
+                            <P>
+                                Compound: <input id="compound_name_input" class="input_middle" name="compound_name" type="text" th:value="${search_compound_name} == null ? '' : ${search_compound_name}" />
+                            </P>
+                            <P style="text-align: center">
+                                <button type="submit" class="layui-btn" style="margin-top: 20px;" onclick="return validate();">Search</button>
+                            </P>
+                        </form>
+                    </div>
+                </div>
+                <div class="reactions_table" style="margin-top: 10px;" th:if="${genome_network_reactions} != null and ${genome_network_reactions.size()} > 0">
+                    <table class="table table-striped table-bordered" style="margin: 5px 0px" id="reaction_table">
+                        <thead>
+                        <tr>
+                            <th width="100px">Rxn ID</th>
+                            <th>Rxn Name</th>
+                            <th>Compound</th>
+                            <th>Reactant/Product</th>
+                            <th>Carbon</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <div th:each="reaction : ${genome_network_reactions}" th:if="${genome_network_reactions} != null">
+                            <tr >
+                                <td th:rowspan="${reaction.comp_size}" th:text="${reaction.rxn_id}"></td>
+                                <td th:rowspan="${reaction.comp_size}" th:text="${reaction.rxn_name}"></td>
+                                <td th:text="${reaction.comps.get(0).name}"></td>
+                                <td th:text="${reaction.comps.get(0).isReactant()} ? 'Reactant' : 'Product'"></td>
+                                <td th:text="${reaction.comps.get(0).carbon}"></td>
+                            </tr>
+                            <tr th:each="carbon_name_comp, stat : ${reaction.comps}" th:if="${stat.index} > 0">
+                                <td th:text="${carbon_name_comp.name}"></td>
+                                <td th:text="${carbon_name_comp.isReactant()} ? 'Reactant' : 'Product'"></td>
+                                <td th:text="${carbon_name_comp.carbon}"></td>
+                            </tr>
+                        </div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div th:replace="common/foot::myfoot"></div>
+        </div>
+    </div>
+</div>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script>
+    function validate() {
+        var rxn_name = $("#rxn_name_input").val();
+        var rxn_id = $("#rxn_id_input").val();
+        var compound_name = $("#compound_name_input").val();
+
+        if (rxn_id == "" && rxn_name == "" && compound_name == "") {
+            $("#search_hint").css("display","block");
+            $("#search_hint").html("Please input at least one search content!");
+            return false;
+        }
+        return true;
+    }
+    
+    $("#search_selected_btn").click(function () {
+        var selectedIds = "";
+        $("table input:checkbox").each(function(){
+            if($(this).is(":checked")){
+                selectedIds += $(this).attr("rxn_id") + ",";
+            }
+        });
+        if(selectedIds == "") {
+            alert("No reactions is selected!")
+        } else {
+            $("#select_reaction_rxn_id").attr("value",selectedIds);
+            $("#selectForm").submit();
+        }
+        return false;
+    });
+</script>
+</body>
+</html>

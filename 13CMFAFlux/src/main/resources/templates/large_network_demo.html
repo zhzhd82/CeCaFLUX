@@ -1,0 +1,2893 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<title>CeCaFLUX - A powerful visual tool and the first user-friendly web server for effective inferring
+    intracellular metabolic flux from instationary 13C labeling data.</title>
+<head>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <link rel='stylesheet' type='text/css' href='css/wuxia-green.css'/>
+    <link rel='stylesheet' type='text/css' href='css/input_size.css'/>
+    <link rel="stylesheet" th:href="@{layui/css/layui.css}">
+    <style type="text/css">
+        .reactions_table {
+            border-collapse: collapse;
+            background-color: #f6f6f6;
+            border: 2px solid #fdfdfd;
+            border-collapse: separate;
+            *border-collapse: collapsed;
+            border-left: 0;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+        }
+
+        .reactions_table th {
+            background: #CCCCCC;
+            padding: 7px 15px;
+            text-align: center;
+            vertical-align: middle;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+        }
+
+        .reactions_table td {
+            background: #C7DDEE none repeat-x scroll center left;
+            color: #474545;
+            font: 15px Verdana, Geneva, sans-serif;
+            padding: 7px 15px;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+            word-wrap: break-word;
+            word-break: break-all;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main" style="padding: 10px">
+
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p id="submit_hint" style="color:red; display:none; text-align:left; margin-left: 5px;"></p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <P>
+                            Runge Kutta : <select id="rungekutta_op" style="height:35px;width:150px;">
+                            <option value="1" selected>Adaptive step</option>
+                            <option value="2">Fixed step</option>
+                        </select>
+                            Step: <input id="step_input" class="input_small" type="text" placeholder="like 0.001"/>&nbsp;For
+                            Adaptive step method, an initial step size is required.
+                            <br/>Model name: <input id="model_name_input" class="input_small" type="text"
+                                                    placeholder="model name"/>&nbsp;
+                            Population size: <input id="space_input" class="input_small" type="text"
+                                                    placeholder="an even >= 10"/>&nbsp;
+                            Email: <input id="email_input" class="input_small" type="text" placeholder="Email"/>
+                            <button type="button" class="layui-btn" id="submit_btn"
+                                    style="margin-bottom: 3px;">Submit
+                            </button>
+                        </P>
+                    </div>
+                </div>
+
+                <div class="reactions_table" style="margin-top: 10px;">
+                    <table class="table table-striped table-bordered" style="margin-bottom: 1px;"
+                           id="reaction_list_table">
+                        <thead>
+                        <tr>
+                            <th>Rxn Name</th>
+                            <th>Compound</th>
+                            <th>Reactant/Product</th>
+                            <th>Carbon</th>
+                        </tr>
+                        </thead>
+                        <tbody id="reaction_list_tbody">
+                        <tr>
+                            <td rowspan="2">Glucupt</td>
+                            <td>Gluc</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>Glc6P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">hxi</td>
+                            <td>Glc6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">hxi_reversed</td>
+                            <td>Fru6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>Glc6P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">pfk</td>
+                            <td>Fru6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Product</td>
+                            <td>C,B,A</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Product</td>
+                            <td>D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">pfk_reversed</td>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>C,B,A</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">eno</td>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>PEP</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">pyk</td>
+                            <td>PEP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Pyr</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">pyk_reversed</td>
+                            <td>Pyr</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>PEP</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">gdh</td>
+                            <td>Glc6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>Rul5P</td>
+                            <td>Product</td>
+                            <td>B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">rpe</td>
+                            <td>Rul5P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Xul5P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">rpi</td>
+                            <td>Rul5P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Rib5P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tk2</td>
+                            <td>Xul5P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Ery4P</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Product</td>
+                            <td>C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Product</td>
+                            <td>A,B,a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tk2_reversed</td>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>Xul5P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Ery4P</td>
+                            <td>Product</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tk1</td>
+                            <td>Xul5P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Rib5P</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td>Sed7P</td>
+                            <td>Product</td>
+                            <td>A,B,a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Product</td>
+                            <td>C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tk1_reversed</td>
+                            <td>Sed7P</td>
+                            <td>Reactant</td>
+                            <td>A,B,a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Xul5P</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Rib5P</td>
+                            <td>Product</td>
+                            <td>a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tal</td>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Sed7P</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d,e,f,g</td>
+                        </tr>
+                        <tr>
+                            <td>Ery4P</td>
+                            <td>Product</td>
+                            <td>d,e,f,g</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Product</td>
+                            <td>a,b,c,A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4">tal_reversed</td>
+                            <td>Ery4P</td>
+                            <td>Reactant</td>
+                            <td>d,e,f,g</td>
+                        </tr>
+                        <tr>
+                            <td>Fru6P</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>GAP</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Sed7P</td>
+                            <td>Product</td>
+                            <td>a,b,c,d,e,f,g</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">pdh</td>
+                            <td>Pyr</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>AcCoA</td>
+                            <td>Product</td>
+                            <td>B,C</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">glta</td>
+                            <td>AcCoA</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>OAA</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>ICit</td>
+                            <td>Product</td>
+                            <td>d,c,b,a,B,A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">icd</td>
+                            <td>ICit</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>AKG</td>
+                            <td>Product</td>
+                            <td>A,B,C,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">akd</td>
+                            <td>AKG</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>Suc</td>
+                            <td>Product</td>
+                            <td>B,C,D,E</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">fumA</td>
+                            <td>Suc</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>Mal</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">fumB</td>
+                            <td>Suc</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>Mal</td>
+                            <td>Product</td>
+                            <td>D,C,B,A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">fumC</td>
+                            <td>Mal</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>Suc</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">mdh</td>
+                            <td>Mal</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>OAA</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">mdh_reversed</td>
+                            <td>OAA</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>Mal</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">gs1</td>
+                            <td>ICit</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>GlyOx</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>Suc</td>
+                            <td>Product</td>
+                            <td>D,C,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">gs2</td>
+                            <td>GlyOx</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>AcCoA</td>
+                            <td>Reactant</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td>Mal</td>
+                            <td>Product</td>
+                            <td>A,B,b,a</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">ppc</td>
+                            <td>PEP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Reactant</td>
+                            <td>a</td>
+                        </tr>
+                        <tr>
+                            <td>OAA</td>
+                            <td>Product</td>
+                            <td>A,B,C,a</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">mez</td>
+                            <td>Mal</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,a</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>a</td>
+                        </tr>
+                        <tr>
+                            <td>Pyr</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_glc6P</td>
+                            <td>Glc6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>Tre</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_fru6P</td>
+                            <td>Fru6P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>GlcNAcAux</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_accoa</td>
+                            <td>AcCoA</td>
+                            <td>Reactant</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td>AcCoAaux</td>
+                            <td>Product</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_pyr1</td>
+                            <td>Pyr</td>
+                            <td>Reactant</td>
+                            <td>a,b,c</td>
+                        </tr>
+                        <tr>
+                            <td>Pyraux</td>
+                            <td>Product</td>
+                            <td>a,b,c</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_akg</td>
+                            <td>AKG</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td>AKGaux</td>
+                            <td>Product</td>
+                            <td>a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_oaa1</td>
+                            <td>OAA</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>Thr</td>
+                            <td>Product</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">dr_oaa2</td>
+                            <td>Thr</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>Gly</td>
+                            <td>Product</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td>COGly</td>
+                            <td>Product</td>
+                            <td>c,d</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_oaa3</td>
+                            <td>Thr</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td>Thraux</td>
+                            <td>Product</td>
+                            <td>a,b,c,d</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_oaa4</td>
+                            <td>COGly</td>
+                            <td>Reactant</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td>COGlyaux</td>
+                            <td>Product</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">dr_rib5p</td>
+                            <td>Rib5P</td>
+                            <td>Reactant</td>
+                            <td>a,b,c,d,e</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Reactant</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>His</td>
+                            <td>Product</td>
+                            <td>e,d,c,b,a,A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_rib5p2aux</td>
+                            <td>His</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td>HisAUX</td>
+                            <td>Product</td>
+                            <td>A,B,C,D,E,F</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_e4p</td>
+                            <td>Ery4P</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>Ery4Paux</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_pep</td>
+                            <td>PEP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>PEPAUX</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_gap1</td>
+                            <td>GAP</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Ser</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_gap2</td>
+                            <td>Ser</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Cys</td>
+                            <td>Product</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">dr_gap3</td>
+                            <td>Ser</td>
+                            <td>Reactant</td>
+                            <td>A,B,C</td>
+                        </tr>
+                        <tr>
+                            <td>Gly</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>C</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">dr_gap3_aux</td>
+                            <td>Gly</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>GlyAux</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">dr_gap4</td>
+                            <td>Gly</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>CO2</td>
+                            <td>Product</td>
+                            <td>B</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">bs_co2</td>
+                            <td>CO2</td>
+                            <td>Reactant</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>BM_CO2</td>
+                            <td>Product</td>
+                            <td>A</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Flux net-->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">FLUXES&nbsp;NET</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Reaction Name</th>
+                                <th>Constrained Flux Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="flux_net_tbody">
+                            <tr>
+                                <td>Glucupt</td>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <td>dr_glc6P</td>
+                                <td>0.01107</td>
+                            </tr>
+                            <tr>
+                                <td>dr_fru6P</td>
+                                <td>0.00383</td>
+                            </tr>
+                            <tr>
+                                <td>dr_pep</td>
+                                <td>0.02803</td>
+                            </tr>
+                            <tr>
+                                <td>dr_gap1</td>
+                                <td>0.2357</td>
+                            </tr>
+                            <tr>
+                                <td>dr_gap3_aux</td>
+                                <td>0.03428</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- POOL_SIZE -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">POOL_SIZE</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound Name</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="pool_size_tbody">
+                            <tr>
+                                <td>AcCoA</td>
+                                <td>0.09</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>GAP</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Mal</td>
+                                <td>0.03</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>0.08</td>
+                            </tr>
+                            <tr>
+                                <td>Pyr</td>
+                                <td>0.08</td>
+                            </tr>
+                            <tr>
+                                <td>Suc</td>
+                                <td>0.07</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- EQUALITIES -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">EQUALITIES</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Coefficient reaction 1</th>
+                                <th>Coefficient reaction 2</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="equalities_tbody">
+                            <tr>
+                                <td>1*fumA</td>
+                                <td>-1*fumB</td>
+                                <td>0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- INEQUALITIES -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">INEQUALITIES</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>InEqualities</th>
+                            </tr>
+                            </thead>
+                            <tbody id="inequalities_tbody">
+                            <tr>
+                                <td>hxi&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>pyk&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>fumA&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>fumB&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>fumC&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>gdh&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>mez&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>icd&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>dr_gap3&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>akd&gt;=0.0001</td>
+                            </tr>
+                            <tr>
+                                <td>dr_accoa&gt;=0.200</td>
+                            </tr>
+                            <tr>
+                                <td>dr_akg&gt;=0.116</td>
+                            </tr>
+                            <tr>
+                                <td>dr_pyr1&gt;=0.160</td>
+                            </tr>
+                            <tr>
+                                <td>dr_pyr1&lt;=0.170</td>
+                            </tr>
+                            <tr>
+                                <td>dr_oaa1&gt;=0.0964</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- LABEL_INPUT -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">LABEL_INPUT</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound</th>
+                                <th>Isotopomer</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="label_input_tbody">
+                            <tr>
+                                <td>Gluc</td>
+                                <td>000000</td>
+                                <td>0.6406</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>000001</td>
+                                <td>0.0099</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>000010</td>
+                                <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>000100</td>
+                                <td>0.0099</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>001000</td>
+                                <td>0.0099</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>010000</td>
+                                <td>0.0297</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>100000</td>
+                                <td>0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Gluc</td>
+                                <td>111111</td>
+                                <td>0.3</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- MASS_SPECTROMETRY -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p style="margin-left: 5px;">MASS_SPECTROMETRY</p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound</th>
+                                <th>Fragment</th>
+                                <th>Mass</th>
+                                <th>Value</th>
+                                <th>Standard deviation</th>
+                                <th>Time point</th>
+                            </tr>
+                            </thead>
+                            <tbody id="mass_spectrometry_tbody">
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>0</td>
+                                <td>0.626911235378</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>1</td>
+                                <td>0.065268087191</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>2</td>
+                                <td>0.018538710189</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>3</td>
+                                <td>0.017747213905</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>4</td>
+                                <td>0.006838375742</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>5</td>
+                                <td>0.002493395852</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>6</td>
+                                <td>0.264111779615</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>0</td>
+                                <td>0.662331260948</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>1</td>
+                                <td>0.0685978496</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>2</td>
+                                <td>0.270853413823</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.727200278547</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.077331500589</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.010532063122</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.045360699885</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.14104751075</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.720280182037</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.058422390294</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>2</td>
+                                <td>0.041815540761</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>3</td>
+                                <td>0.180995978631</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.897738657807</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.03618619141</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.066555522611</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.785587233107</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.126857798358</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.069375917679</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.017957934848</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.001419344009</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.710609354823</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.127401917206</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.704378050034</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.118660459869</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.582201154874</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.179079221558</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>0</td>
+                                <td>0.543992597103</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>1</td>
+                                <td>0.064021555497</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>0</td>
+                                <td>0.51922269919</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>1</td>
+                                <td>0.115991233869</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>2</td>
+                                <td>0.129869175215</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>3</td>
+                                <td>0.083556362077</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>4</td>
+                                <td>0.061933800273</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>5</td>
+                                <td>0.05565004936</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>6</td>
+                                <td>0.014580916287</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>7</td>
+                                <td>0.02215225576</td>
+                                <td>0.01</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>0</td>
+                                <td>0.607686468814</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>1</td>
+                                <td>0.068383812449</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>2</td>
+                                <td>0.022637259338</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>3</td>
+                                <td>0.021716402868</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>4</td>
+                                <td>0.010701129728</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>5</td>
+                                <td>0.004672734521</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>6</td>
+                                <td>0.266307037686</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>0</td>
+                                <td>0.64554858775</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>1</td>
+                                <td>0.08016734022</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>2</td>
+                                <td>0.276190285438</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.624112977626</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.103475647659</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.021857362999</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.065221050556</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.187557680889</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.638451831082</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.081179881683</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>2</td>
+                                <td>0.063794513636</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>3</td>
+                                <td>0.218654033037</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.72735048661</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.097364170976</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.176822797566</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.521687991636</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.235790507259</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.161662669017</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.073228221381</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.011004052835</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.574137343906</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.187792017507</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.566195761027</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.165091278685</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.500735327908</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.20752988212</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>0</td>
+                                <td>0.452961640027</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>1</td>
+                                <td>0.075437046392</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>0</td>
+                                <td>0.375949231805</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>1</td>
+                                <td>0.137863841676</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>2</td>
+                                <td>0.146400590498</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>3</td>
+                                <td>0.108475096156</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>4</td>
+                                <td>0.092664683959</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>5</td>
+                                <td>0.076786256967</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>6</td>
+                                <td>0.02962075483</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>7</td>
+                                <td>0.036731185845</td>
+                                <td>0.01</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>0</td>
+                                <td>0.603207502849</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>1</td>
+                                <td>0.069300110256</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>2</td>
+                                <td>0.022679764469</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>3</td>
+                                <td>0.022769984502</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>4</td>
+                                <td>0.011972375684</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>5</td>
+                                <td>0.005203011932</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>6</td>
+                                <td>0.26702874729</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>0</td>
+                                <td>0.641492408768</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>1</td>
+                                <td>0.082488402282</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>2</td>
+                                <td>0.277958570217</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.58789435864</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.114121114303</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.026184392248</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.071584808138</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.202730968943</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.616654131004</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.089191298521</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>2</td>
+                                <td>0.066846651855</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>3</td>
+                                <td>0.229554875323</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.654417645396</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.131146847888</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.216461589739</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.399441135237</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.279368358295</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.198750643438</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.106866375312</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.02010061399</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.528477078689</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.204417465961</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.433040499162</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.079436360373</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.481394979474</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.216816395729</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>0</td>
+                                <td>0.433040499162</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>1</td>
+                                <td>0.079436360373</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>0</td>
+                                <td>0.336709701875</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>1</td>
+                                <td>0.142919241255</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>2</td>
+                                <td>0.1454557744</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>3</td>
+                                <td>0.115299754463</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>4</td>
+                                <td>0.104155198066</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>5</td>
+                                <td>0.084373737748</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>6</td>
+                                <td>0.034720078925</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>7</td>
+                                <td>0.041397418876</td>
+                                <td>0.01</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>0</td>
+                                <td>0.601534019986</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>1</td>
+                                <td>0.069771996362</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>2</td>
+                                <td>0.022474915492</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>3</td>
+                                <td>0.023194636644</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>4</td>
+                                <td>0.012529197324</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>5</td>
+                                <td>0.005362194086</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>6</td>
+                                <td>0.267317674957</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>0</td>
+                                <td>0.639974208207</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>1</td>
+                                <td>0.08329789384</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>2</td>
+                                <td>0.278680103731</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.571266383469</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.119766552165</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.028155463362</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.074165745831</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.209305627179</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.607824635975</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.093253444912</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>2</td>
+                                <td>0.067150547092</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>3</td>
+                                <td>0.234089387774</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.622778500412</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.145755346188</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.233720305611</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.337216614302</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.299512141915</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.215313159199</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.126218999585</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.026914437088</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.508334096443</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.210350872397</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.499460729533</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.181158217016</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.47422196031</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.221378031869</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>0</td>
+                                <td>0.426255208251</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>1</td>
+                                <td>0.081502793042</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>0</td>
+                                <td>0.320874761896</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>1</td>
+                                <td>0.144934600316</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>2</td>
+                                <td>0.144297462188</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>3</td>
+                                <td>0.117670335508</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>4</td>
+                                <td>0.109486262735</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>5</td>
+                                <td>0.087961171405</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>6</td>
+                                <td>0.036724767288</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>7</td>
+                                <td>0.04333302817</td>
+                                <td>0.01</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>0</td>
+                                <td>0.601349140169</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>1</td>
+                                <td>0.069842557083</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>2</td>
+                                <td>0.022435945782</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>3</td>
+                                <td>0.023241849281</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>4</td>
+                                <td>0.012595203146</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>5</td>
+                                <td>0.005373953941</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>1,2,3,4,5,6</td>
+                                <td>6</td>
+                                <td>0.267348702493</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>0</td>
+                                <td>0.639804645941</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>1</td>
+                                <td>0.083386757238</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Glc6P</td>
+                                <td>2,3</td>
+                                <td>2</td>
+                                <td>0.278762251346</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.569206924481</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.120608462832</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.028386019999</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.074410559687</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Ery4P</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.210067188374</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.606410160426</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.094024463222</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>2</td>
+                                <td>0.067233462103</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>PEP</td>
+                                <td>1,2,3</td>
+                                <td>3</td>
+                                <td>0.234662385476</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.616987500901</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.148420490642</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Gly</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.236888025567</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.328071385249</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.302470894999</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.217246987172</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>3</td>
+                                <td>0.129219377786</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>AKG</td>
+                                <td>1,2,3,4</td>
+                                <td>4</td>
+                                <td>0.028272978416</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.505829941754</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.210988302385</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.497032127859</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Rib5P</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.181564386891</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>0</td>
+                                <td>0.473432281698</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3</td>
+                                <td>1</td>
+                                <td>0.221985016035</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>0</td>
+                                <td>0.425570974126</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Xul5P</td>
+                                <td>1,2,3,4,5</td>
+                                <td>1</td>
+                                <td>0.081806191901</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>0</td>
+                                <td>0.3190410584</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>1</td>
+                                <td>0.145237823438</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>2</td>
+                                <td>0.144134897338</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>3</td>
+                                <td>0.117898394576</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>4</td>
+                                <td>0.110128242064</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>5</td>
+                                <td>0.088395617944</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>6</td>
+                                <td>0.036927628942</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>Sed7P</td>
+                                <td>1,2,3,4,5,6,7</td>
+                                <td>7</td>
+                                <td>0.043551241597</td>
+                                <td>0.01</td>
+                                <td>8</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div th:replace="common/foot::myfoot"></div>
+    </div>
+</div>
+
+<script src="layui/layui.all.js"></script>
+
+<script>
+    var isSubmitting = true;
+    var timestamp = "[[${timestamp}]]";
+
+    window.history.replaceState(null, null, "./model?src=demo&timestamp=" + timestamp);
+
+    $("#submit_btn").click(function () {
+        if (!isSubmitting) {
+            return false;
+        }
+        var model_name = $("#model_name_input").val();
+        var method = $("#rungekutta_op").val();
+        var step = $("#step_input").val();
+        var email = $("#email_input").val();
+        var reg_double = /^\d+(\.\d*)?$/;
+        var space = $("#space_input").val();
+        if (model_name == "" || step == "" || !reg_double.test(step) || space == "" || space < 10 || space % 2 != 0 || email == "") {
+            $("#submit_hint").css("display", "block");
+            $("#submit_hint").html("Please input correct information!");
+            return false;
+        }
+        $("#submit_hint").css("display", "none");
+
+        var reactionContents = "";
+        $("#reaction_list_tbody tr").each(function () {
+            reactionContents = reactionContents + "<tr>"
+            $(this).children().each(function () {
+                reactionContents = reactionContents + "<td>" + $(this).text() + "</td>";
+            });
+            reactionContents = reactionContents + "</tr>"
+        });
+        if (reactionContents == "") {
+            alert("Please input reactions!");
+            return false;
+        }
+        reactionContents = "<reaction_contents>" + reactionContents + "</reaction_contents>";
+
+        var fluxNetContents = "";
+        $("#flux_net_tbody tr").each(function () {
+            fluxNetContents = fluxNetContents + "<tr>"
+            $(this).children().each(function () {
+                fluxNetContents = fluxNetContents + "<td>" + $(this).text() + "</td>";
+            });
+            fluxNetContents = fluxNetContents + "</tr>"
+        });
+        fluxNetContents = "<flux_net>" + fluxNetContents + "</flux_net>";
+
+        var poolSizeContents = "";
+        $("#pool_size_tbody tr").each(function () {
+            poolSizeContents = poolSizeContents + "<tr>"
+            $(this).children().each(function () {
+                poolSizeContents = poolSizeContents + "<td>" + $(this).text() + "</td>";
+            });
+            poolSizeContents = poolSizeContents + "</tr>"
+        });
+        poolSizeContents = "<pool_size>" + poolSizeContents + "</pool_size>";
+
+        var equalitiesContents = "";
+        $("#equalities_tbody tr").each(function () {
+            equalitiesContents = equalitiesContents + "<tr>"
+            $(this).children().each(function () {
+                equalitiesContents = equalitiesContents + "<td>" + $(this).text() + "</td>";
+            });
+            equalitiesContents = equalitiesContents + "</tr>"
+        });
+        equalitiesContents = "<equality>" + equalitiesContents + "</equality>";
+
+        var inEqualitiesContents = "";
+        $("#inequalities_tbody tr").each(function () {
+            inEqualitiesContents = inEqualitiesContents + "<tr>"
+            $(this).children().each(function () {
+                inEqualitiesContents = inEqualitiesContents + "<td>" + $(this).text() + "</td>";
+            });
+            inEqualitiesContents = inEqualitiesContents + "</tr>"
+        });
+        inEqualitiesContents = "<inEquality>" + inEqualitiesContents + "</inEquality>";
+
+        var labelInputContents = "";
+        $("#label_input_tbody tr").each(function () {
+            labelInputContents = labelInputContents + "<tr>"
+            $(this).children().each(function () {
+                labelInputContents = labelInputContents + "<td>" + $(this).text() + "</td>";
+            });
+            labelInputContents = labelInputContents + "</tr>"
+        });
+        if (labelInputContents == "") {
+            alert("Please input LABEL_INPUT!");
+            return false;
+        }
+        labelInputContents = "<label_input>" + labelInputContents + "</label_input>";
+
+        var massSpectrometryContents = "";
+        $("#mass_spectrometry_tbody tr").each(function () {
+            massSpectrometryContents = massSpectrometryContents + "<tr>"
+            $(this).children().each(function () {
+                massSpectrometryContents = massSpectrometryContents + "<td>" + $(this).text() + "</td>";
+            });
+            massSpectrometryContents = massSpectrometryContents + "</tr>"
+        });
+        if (massSpectrometryContents == "") {
+            alert("Please input mass spectrometry!")
+            return false;
+        }
+        massSpectrometryContents = "<mass_spectrometry>" + massSpectrometryContents + "</mass_spectrometry>";
+        var layer_index;
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "reaction_parsing",
+            data: {
+                "reaction_content": reactionContents,
+                "flux_net_content": fluxNetContents,
+                "pool_size_content": poolSizeContents,
+                "equality_content": equalitiesContents,
+                "inequality_content": inEqualitiesContents,
+                "label_input_content": labelInputContents,
+                "mass_spectrometry_content": massSpectrometryContents,
+                "model_name": model_name,
+                "method": method,
+                "step": step,
+                "sample_space": space,
+                "email": email,
+                "timestamp": timestamp,
+                "src": "demo"
+            },
+            beforeSend: function () {
+                isSubmitting = false;
+                layer_index = layer.msg('Submitting, please wait a moment', {
+                    icon: 16,
+                    time: 300000,
+                    shade: 0.1
+                });
+            },
+            success: function (result) {
+                isSubmitting = true;
+                layer.close(layer_index);
+                if (result.status == "success") {
+                    history.go(0);
+                } else {
+                    alert("Please check network information and submit later again!");
+                }
+            },
+            error: function (e) {
+                isSubmitting = true;
+                layer.close(layer_index);
+                alert("Error ! Please check network information and submit later again!");
+            }
+        });
+        return false;
+    });
+
+</script>
+</body>
+</html>

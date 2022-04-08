@@ -1,0 +1,658 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<title>CeCaFLUX - A powerful visual tool and the first user-friendly web server for effective inferring
+    intracellular metabolic flux from instationary 13C labeling data.</title>
+<head>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <link rel='stylesheet' type='text/css' href='css/wuxia-green.css'/>
+    <link rel='stylesheet' type='text/css' href='css/input_size.css'/>
+    <link rel="stylesheet" th:href="@{layui/css/layui.css}">
+    <style type="text/css">
+        .reactions_table {
+            border-collapse: collapse;
+            background-color: #f6f6f6;
+            border: 2px solid #fdfdfd;
+            border-collapse: separate;
+            *border-collapse: collapsed;
+            border-left: 0;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+        }
+
+        .reactions_table th {
+            background: #CCCCCC;
+            padding: 7px 15px;
+            text-align: center;
+            vertical-align: middle;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+        }
+
+        .reactions_table td {
+            background: #C7DDEE none repeat-x scroll center left;
+            color: #474545;
+            font: 15px Verdana, Geneva, sans-serif;
+            padding: 7px 15px;
+            border-top: 2px solid #fdfdfd;
+            border-left: 2px solid #fdfdfd;
+            word-wrap: break-word;
+            word-break: break-all;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main" style="padding: 10px">
+
+                <!-- Submit -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <p id="submit_hint" style="color:red; display:none; text-align:left; margin-left: 5px;"></p>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <P>
+                            Runge Kutta : <select id="rungekutta_op" style="height:35px;width:150px;">
+                            <option value="1" selected>Adaptive step</option>
+                            <option value="2">Fixed step</option>
+                        </select>
+                            Step: <input id="step_input" class="input_small" type="text" placeholder="like 0.001"/>&nbsp;For
+                            Adaptive step method, an initial step size is required.
+                            <br/>Model name: <input id="model_name_input" class="input_small" type="text"
+                                                    placeholder="model name"/>&nbsp;
+                            Population size: <input id="space_input" class="input_small" type="text"
+                                                    placeholder="an even >= 10"/>&nbsp;
+                            Email: <input id="email_input" class="input_small" type="text" placeholder="Email"/>
+                            <button type="button" class="layui-btn" id="submit_btn"
+                                    style="margin-bottom: 3px;">Submit
+                            </button>
+                        </P>
+                    </div>
+                </div>
+
+                <!-- reaction table-->
+                <div class="reactions_table" style="margin-top: 10px;">
+                    <table class="table table-striped table-bordered" style="margin-bottom: 1px;"
+                           id="reaction_list_table">
+                        <thead>
+                        <tr>
+                            <th>Rxn Name</th>
+                            <th>Compound</th>
+                            <th>Reactant/Product</th>
+                            <th>Carbon</th>
+                        </tr>
+                        </thead>
+                        <tbody id="reaction_list_tbody">
+                        <tr>
+                            <td rowspan="2">V1</td>
+                            <td>A</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>Product</td>
+                            <td>B,A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V2</td>
+                            <td>B</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V2_reversed</td>
+                            <td>C</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">V3</td>
+                            <td>B</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>Reactant</td>
+                            <td>a,b</td>
+                        </tr>
+                        <tr>
+                            <td>D</td>
+                            <td>Product</td>
+                            <td>A,B,b,a</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V4</td>
+                            <td>C</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>E</td>
+                            <td>Product</td>
+                            <td>B,A</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">V5</td>
+                            <td>C</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>E</td>
+                            <td>Reactant</td>
+                            <td>C,D</td>
+                        </tr>
+                        <tr>
+                            <td>F</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V6</td>
+                            <td>B</td>
+                            <td>Reactant</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td>BOUT</td>
+                            <td>Product</td>
+                            <td>A,B</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V7</td>
+                            <td>D</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>DOUT</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">V8</td>
+                            <td>F</td>
+                            <td>Reactant</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        <tr>
+                            <td>FOUT</td>
+                            <td>Product</td>
+                            <td>A,B,C,D</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Flux net-->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">FLUXES&nbsp;NET</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Reaction Name</th>
+                                <th>Constrained Flux Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="flux_net_selected_tbody">
+                            <tr>
+                                <td>V1</td>
+                                <td>1</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- POOL_SIZE -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">POOL_SIZE</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound Name</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="pool_size_selected_tbody">
+                            <tr>
+                                <td>B</td>
+                                <td>0.4</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>0.7</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>0.03</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- EQUALITIES -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">EQUALITIES</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Coefficient reaction 1</th>
+                                <th>Coefficient reaction 2</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="equalities_selected_tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- INEQUALITIES -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">INEQUALITIES</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>InEqualities</th>
+                            </tr>
+                            </thead>
+                            <tbody id="inequalities_selected_tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- LABEL_INPUT -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">LABEL_INPUT</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound</th>
+                                <th>Isotopomer</th>
+                                <th>Value</th>
+                            </tr>
+                            </thead>
+                            <tbody id="label_input_selected_tbody">
+                            <tr>
+                                <td>A</td>
+                                <td>11</td>
+                                <td>0.1</td>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>10</td>
+                                <td>0.35</td>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>01</td>
+                                <td>0.5</td>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>00</td>
+                                <td>0.05</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MASS_SPECTROMETRY -->
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif; padding-top : 5px; padding-bottom: 5px; background-color:#f6f6f6; margin-top: 10px;">
+                    <P style="margin-left: 5px;">MASS_SPECTROMETRY</P>
+                    <div style="width : 960px; margin: 0 auto;">
+                        <table class="table table-striped table-bordered reactions_table" style="margin-bottom: 1px;">
+                            <thead>
+                            <tr>
+                                <th>Compound</th>
+                                <th>Fragment</th>
+                                <th>Mass</th>
+                                <th>Value</th>
+                                <th>Standard deviation</th>
+                                <th>Time point</th>
+                            </tr>
+                            </thead>
+                            <tbody id="mass_spectrometry_selected_tbody">
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.507671947998</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.198681280559</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>0</td>
+                                <td>0.081537060442</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.407647574173</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.555652055576</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>1</td>
+                                <td>0.503913835693</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.077762500815</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.210727736452</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>F</td>
+                                <td>1,2,3,4</td>
+                                <td>2</td>
+                                <td>0.344676744529</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.888517029665</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.717564676769</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>0</td>
+                                <td>0.552173831988</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.101719310646</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.254274762648</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>1</td>
+                                <td>0.401867203788</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.009763659689</td>
+                                <td>0.01</td>
+                                <td>1.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.028160560583</td>
+                                <td>0.01</td>
+                                <td>2.0</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td>1,2</td>
+                                <td>2</td>
+                                <td>0.045958964224</td>
+                                <td>0.01</td>
+                                <td>3.0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div th:replace="common/foot::myfoot"></div>
+    </div>
+</div>
+
+<script src="layui/layui.all.js"></script>
+
+<script>
+    var isSubmitting = true;
+    var timestamp = "[[${timestamp}]]";
+
+    window.history.replaceState(null, null, "./model?src=demo&timestamp=" + timestamp);
+
+    $("#submit_btn").click(function () {
+        if (!isSubmitting) {
+            return false;
+        }
+        var model_name = $("#model_name_input").val();
+        var method = $("#rungekutta_op").val();
+        var step = $("#step_input").val();
+        var email = $("#email_input").val();
+        var reg_double = /^\d+(\.\d*)?$/;
+        var space = $("#space_input").val();
+        if (model_name == "" || step == "" || !reg_double.test(step) || space == "" || space < 10 || space % 2 != 0 || email == "") {
+            $("#submit_hint").css("display", "block");
+            $("#submit_hint").html("Please input correct information!");
+            return false;
+        }
+        $("#submit_hint").css("display", "none");
+
+        var reactionContents = "";
+        $("#reaction_list_tbody tr").each(function () {
+            reactionContents = reactionContents + "<tr>"
+            $(this).children().each(function () {
+                reactionContents = reactionContents + "<td>" + $(this).text() + "</td>";
+            });
+            reactionContents = reactionContents + "</tr>"
+        });
+        if (reactionContents == "") {
+            alert("Please input reactions!");
+            return false;
+        }
+        reactionContents = "<reaction_contents>" + reactionContents + "</reaction_contents>";
+
+        var fluxNetContents = "";
+        $("#flux_net_selected_tbody tr").each(function () {
+            fluxNetContents = fluxNetContents + "<tr>"
+            $(this).children().each(function () {
+                fluxNetContents = fluxNetContents + "<td>" + $(this).text() + "</td>";
+            });
+            fluxNetContents = fluxNetContents + "</tr>"
+        });
+        fluxNetContents = "<flux_net>" + fluxNetContents + "</flux_net>";
+
+        var poolSizeContents = "";
+        $("#pool_size_selected_tbody tr").each(function () {
+            poolSizeContents = poolSizeContents + "<tr>"
+            $(this).children().each(function () {
+                poolSizeContents = poolSizeContents + "<td>" + $(this).text() + "</td>";
+            });
+            poolSizeContents = poolSizeContents + "</tr>"
+        });
+        poolSizeContents = "<pool_size>" + poolSizeContents + "</pool_size>";
+
+        var equalitiesContents = "";
+        $("#equalities_selected_tbody tr").each(function () {
+            equalitiesContents = equalitiesContents + "<tr>"
+            $(this).children().each(function () {
+                equalitiesContents = equalitiesContents + "<td>" + $(this).text() + "</td>";
+            });
+            equalitiesContents = equalitiesContents + "</tr>"
+        });
+        equalitiesContents = "<equality>" + equalitiesContents + "</equality>";
+
+        var inEqualitiesContents = "";
+        $("#inequalities_selected_tbody tr").each(function () {
+            inEqualitiesContents = inEqualitiesContents + "<tr>"
+            $(this).children().each(function () {
+                inEqualitiesContents = inEqualitiesContents + "<td>" + $(this).text() + "</td>";
+            });
+            inEqualitiesContents = inEqualitiesContents + "</tr>"
+        });
+        inEqualitiesContents = "<inEquality>" + inEqualitiesContents + "</inEquality>";
+
+        var labelInputContents = "";
+        $("#label_input_selected_tbody tr").each(function () {
+            labelInputContents = labelInputContents + "<tr>"
+            $(this).children().each(function () {
+                labelInputContents = labelInputContents + "<td>" + $(this).text() + "</td>";
+            });
+            labelInputContents = labelInputContents + "</tr>"
+        });
+        if (labelInputContents == "") {
+            alert("Please input LABEL_INPUT!");
+            return false;
+        }
+        labelInputContents = "<label_input>" + labelInputContents + "</label_input>";
+
+        var massSpectrometryContents = "";
+        $("#mass_spectrometry_selected_tbody tr").each(function () {
+            massSpectrometryContents = massSpectrometryContents + "<tr>"
+            $(this).children().each(function () {
+                massSpectrometryContents = massSpectrometryContents + "<td>" + $(this).text() + "</td>";
+            });
+            massSpectrometryContents = massSpectrometryContents + "</tr>"
+        });
+        if (massSpectrometryContents == "") {
+            alert("Please input mass spectrometry!")
+            return false;
+        }
+        massSpectrometryContents = "<mass_spectrometry>" + massSpectrometryContents + "</mass_spectrometry>";
+        var layer_index;
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "reaction_parsing",
+            data: {
+                "reaction_content": reactionContents,
+                "flux_net_content": fluxNetContents,
+                "pool_size_content": poolSizeContents,
+                "equality_content": equalitiesContents,
+                "inequality_content": inEqualitiesContents,
+                "label_input_content": labelInputContents,
+                "mass_spectrometry_content": massSpectrometryContents,
+                "model_name": model_name,
+                "method": method,
+                "step": step,
+                "sample_space": space,
+                "email": email,
+                "timestamp": timestamp,
+                "src": "demo"
+            },
+            beforeSend: function () {
+                isSubmitting = false;
+                layer_index = layer.msg('Submitting, please wait a moment', {
+                    icon: 16,
+                    time: 300000,
+                    shade: 0.1
+                });
+            },
+            success: function (result) {
+                isSubmitting = true;
+                layer.close(layer_index);
+                if (result.status == "success") {
+                    history.go(0);
+                } else {
+                    alert("Please check network information and submit later again!");
+                }
+            },
+            error: function (e) {
+                isSubmitting = true;
+                layer.close(layer_index);
+                alert("Error ! Please check network information and submit later again!");
+            }
+        });
+        return false;
+    });
+
+</script>
+</body>
+</html>

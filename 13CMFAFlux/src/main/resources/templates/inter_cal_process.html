@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Intermediater Calculation Process</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <script th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/cytoscape.min.js}"></script>
+    <script th:src="@{/js/cytoscape-ngraph.forcelayout.js}"></script>
+    <script th:src="@{/js/echarts.min.js}"></script>
+    <link rel='stylesheet' type='text/css' th:href="@{/css/wuxia-green.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/loading3.css}"/>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+</head>
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main" style="padding: 10px">
+
+                <div id="waiting_div" style="display: none">
+                    <div style="color:gray;font:16px Verdana, Geneva, sans-serif; text-align: center">
+                        <P>Data is in processing!</P>
+                    </div>
+                    <div class="loading3" style="margin-left: 380px; margin-top: 50px; margin-bottom: 50px;">
+                        <div>Processing..</div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                </div>
+
+                <div id="graph_div" style="display: none;">
+
+                    <div id="flux_hint_div" style="color:red;font:18px Verdana, Geneva, sans-serif; text-align: center; padding: 10px; display: none;">
+                        <P>It is now executing the flux estimation, please wait!</P>
+                    </div>
+
+                    <div id="statistics_hint_div" style="color:red;font:18px Verdana, Geneva, sans-serif; text-align: center; padding: 10px; display: none">
+                        <P>It is now executing the parameter statistical analysis, please wait!</P>
+                    </div>
+
+                    <div id="cytoscape_flux_graph"
+                         style="width:950px;height:500px;">
+                    </div>
+
+                    <div id="echarts_norm2_graph"
+                         style="width:950px;height:500px; margin-top: 50px;">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div th:replace="common/foot::myfoot"></div>
+    </div>
+</div>
+<script>
+    var count = 0;
+    var timestamp = "[[${timestamp}]]";
+    var src = "[[${src}]]";
+    window.history.replaceState(null, null, "./model?src=" + src + "&timestamp=" + timestamp);
+
+    function getFluxGraphData() {
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "get_flux_graph_data",
+            data: {
+                "timestamp": timestamp,
+                "count": count,
+            },
+            beforeSend: function () {
+            },
+            success: function (result) {
+                if (result.finished == "yes") {
+                    history.go(0);
+                }
+                if (result.status == "success") {
+                    if ($('#graph_div').css('display') == 'none') {
+                        $('#graph_div').css('display', 'block');
+                        $('#waiting_div').css('display', 'none');
+                    }
+                    count = result.count;
+                    var calculating_status = result.calculating_status;
+                    if(calculating_status == 5) {
+                        $('#flux_hint_div').css('display', 'none');
+                        $('#statistics_hint_div').css('display', 'block');
+                    } else {
+                        $('#flux_hint_div').css('display', 'block');
+                        $('#statistics_hint_div').css('display', 'none');
+                    }
+                    var graph_data = result.graph_data;
+                    graph_data = graph_data.replace(/&quot;/g, "\"");
+                    graph_data = JSON.parse(graph_data);
+                    var cy = window.cy = cytoscape({
+                        container: $('#cytoscape_flux_graph'),
+                        boxSelectionEnabled: false,
+                        autounselectify: true,
+                        layout: {
+                            name: 'cytoscape-ngraph.forcelayout'
+                        },
+                        style: [
+                            {
+                                selector: 'node',
+                                style: {
+                                    'shape': 'circle',
+                                    'height': 'data(width)',
+                                    'width': 'data(width)',
+                                    'background-fit': 'contain',
+                                    'padding': 1,
+                                    'content': 'data(label)',
+                                    'background-color': '#0B94B1',
+                                    'border-width': 1,
+                                    'border-color': 'white',
+                                    'font-size': 15
+                                }
+                            },
+                            {
+                                selector: 'node.enzyme',
+                                style: {
+                                    'shape': 'triangle',
+                                    'content': 'data(label)',
+                                    'background-color': '#0B94B1',
+                                    'height': 20,
+                                    'width': 20,
+                                    'background-opacity': 1
+                                }
+                            },
+                            {
+                                selector: 'edge',
+                                style: {
+                                    'width': 'data(width)',
+                                    'opacity': 0.9,
+                                    'content': 'data(label)',
+                                    'line-color': '#999'
+                                }
+                            },
+                            {
+                                selector: ':parent',
+                                style: {
+                                    'background-color': '#ABCFD6',
+                                    'height': 20,
+                                    'width': 20,
+                                    'background-opacity': 1.0,
+                                    'border-opacity': 0.0
+                                }
+                            },
+                            {
+                                selector: 'edge.bezier',
+                                style: {
+                                    "curve-style": "bezier",
+                                    'line-style': 'solid',
+                                    'target-arrow-color': '#999',
+                                    'target-arrow-shape': 'triangle'
+                                }
+                            }],
+                        elements: graph_data
+                    });
+                } else {
+                    if ($('#graph_div').css('display') == 'none') {
+                        $('#waiting_div').css('display', 'block');
+                    }
+                }
+            },
+            error: function (e) {
+            }
+        });
+    }
+
+    setTimeout("getFluxGraphData()", 10);
+
+    var fluxGraph = setInterval("getFluxGraphData()", 5000);
+
+    var norm2LineChart = echarts.init(document.getElementById('echarts_norm2_graph'));
+    norm2LineChart.setOption({
+        color:["#60acfc", "#5bc49f", "#5bc49f", "#60acfc", "#5bc49f", "#5bc49f"],
+        title: {
+            text: 'Square difference'
+        },
+        tooltip: {},
+        legend: {
+            top: 30,
+            data: ['Parent mean', 'Cross mean', 'Mutation mean',
+                   'Parent min', 'Cross min',
+                {
+                    name: 'Mutation min',
+                    lineStyle: {
+                        color: "#feb64d",
+                        type:"dotted"
+                    }
+                }]
+        },
+        xAxis: {
+            data: []
+        },
+        yAxis: {},
+        series: [
+            {
+                name: 'Parent mean',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 5,
+                color: '#5bc49f',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#5bc49f",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            },
+            {
+                name: 'Cross mean',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 5,
+                color: '#feb64d',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#feb64d",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            },
+            {
+                name: 'Mutation mean',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 5,
+                color: '#ff7c7c',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#ff7c7c",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            },
+            {
+                name: 'Parent min',
+                type: 'line',
+                smooth: false,
+                symbol: 'triangle',
+                symbolSize: 5,
+                color: '#5bc49f',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#5bc49f",
+                            type:"dotted",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            },
+            {
+                name: 'Cross min',
+                type: 'line',
+                smooth: false,
+                symbol: 'triangle',
+                symbolSize: 5,
+                color: '#feb64d',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#feb64d",
+                            type:"dotted",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            },
+            {
+                name: 'Mutation min',
+                type: 'line',
+                smooth: false,
+                symbol: 'triangle',
+                symbolSize: 5,
+                color: '#ff7c7c',
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            color: "#ff7c7c",
+                            type:"dotted",
+                            width: 3
+                        }
+                    }
+                },
+                data: []
+            }
+        ]
+    });
+
+    var lineCount = 0;
+
+    function getLineGraphData() {
+        $.get("get_line_graph_data?timestamp=" + timestamp + "&count=" + lineCount).done(function (data) {
+            if (data.status == "success") {
+                if ($('#graph_div').css('display') == 'none') {
+                    $('#graph_div').css('display', 'block');
+                    $('#waiting_div').css('display', 'none');
+                }
+                lineCount = data.count;
+
+                var xAxis_data = data.xAxis;
+                xAxis_data = xAxis_data.replace(/&quot;/g, "\"");
+                xAxis_data = JSON.parse(xAxis_data);
+
+                var parent_mean_norm2 = data.parent_mean_norm2;
+                parent_mean_norm2 = parent_mean_norm2.replace(/&quot;/g, "\"");
+                parent_mean_norm2 = JSON.parse(parent_mean_norm2);
+
+                var parent_min_norm2 = data.parent_min_norm2;
+                parent_min_norm2 = parent_min_norm2.replace(/&quot;/g, "\"");
+                parent_min_norm2 = JSON.parse(parent_min_norm2);
+
+                var cross_mean_norm2 = data.cross_mean_norm2;
+                cross_mean_norm2 = cross_mean_norm2.replace(/&quot;/g, "\"");
+                cross_mean_norm2 = JSON.parse(cross_mean_norm2);
+
+                var cross_min_norm2 = data.cross_min_norm2;
+                cross_min_norm2 = cross_min_norm2.replace(/&quot;/g, "\"");
+                cross_min_norm2 = JSON.parse(cross_min_norm2);
+
+                var mutation_mean_norm2 = data.mutation_mean_norm2;
+                mutation_mean_norm2 = mutation_mean_norm2.replace(/&quot;/g, "\"");
+                mutation_mean_norm2 = JSON.parse(mutation_mean_norm2);
+
+                var mutation_min_norm2 = data.mutation_min_norm2;
+                mutation_min_norm2 = mutation_min_norm2.replace(/&quot;/g, "\"");
+                mutation_min_norm2 = JSON.parse(mutation_min_norm2);
+
+                norm2LineChart.setOption({
+                    xAxis: {
+                        data: xAxis_data
+                    },
+                    series: [
+                        {
+                            name: 'Parent mean',
+                            data: parent_mean_norm2
+                        },
+                        {
+                            name: 'Parent min',
+                            data: parent_min_norm2
+                        },
+                        {
+                            name: 'Cross mean',
+                            data: cross_mean_norm2
+                        },
+                        {
+                            name: 'Cross min',
+                            data: cross_min_norm2
+                        },
+                        {
+                            name: 'Mutation mean',
+                            data: mutation_mean_norm2
+                        },
+                        {
+                            name: 'Mutation min',
+                            data: mutation_min_norm2
+                        }
+                    ]
+                });
+            }
+
+        });
+    }
+
+    setTimeout("getLineGraphData()", 10);
+    var lineGraph = setInterval("getLineGraphData()", 5000);
+
+</script>
+</body>
+</html>

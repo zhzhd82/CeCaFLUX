@@ -1,0 +1,29 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<title>CeCaFLUX - A powerful visual tool and the first user-friendly web server for effective inferring
+    intracellular metabolic flux from instationary 13C labeling data.</title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+    <link rel="stylesheet" href="css/buttons.css" type="text/css" />
+    <link rel='stylesheet' type='text/css' href='css/wuxia-green.css'/>
+</head>
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main">
+                <div style="color:gray;width:100%;font:16px Verdana, Geneva, sans-serif;margin-left: 10px;">
+                    <P>Computing is started! You can get the result at url compute_result
+                        <a th:href="${result_url}" style="color:red; font:16px Verdana, Geneva, sans-serif;">[[${result_url}]]</a> when finished.</P>
+                </div>
+            </div>
+            <div th:replace="common/foot::myfoot"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

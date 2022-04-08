@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<title>CeCaFLUX - A powerful visual tool and the first user-friendly web server for effective inferring
+    intracellular metabolic flux from instationary 13C labeling data.</title>
+<head>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0"/>
+    <link rel="icon" href="images/cecafdb_title_logo.png"
+          type="image/x-icon">
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css" media="all"/>
+    <link rel='stylesheet' type='text/css' th:href='@{/css/wuxia-green.css}'/>
+    <script src="js/jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+<div id="wrapper">
+    <div class="shell">
+        <div class="container">
+            <div th:replace="common/head::myhead"></div>
+            <div class="main">
+                <div style="width:970px;font:16px Verdana, Geneva, sans-serif;text-align:left;line-height:1.5;margin-left:8px;">
+                    <a style="color:#806819;" href="#datasets_of_cecaflux">The Datasets of CeCaFLUX</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#how_to_prepare_a_model">How to prepare a model for CeCaFLUX</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#how_to_prepare_ftbl">How to prepare the FTBL file for CeCaFLUX</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#start_the_optimization_process">Start the optimization process</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#optimization_interface_of_CeCaFLUX">The optimization interface of CeCaFLUX</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#output_of_CeCaFLUX">The output of CeCaFLUX</a>&nbsp;&nbsp;
+                    <span style="color:black;font:18px Verdana, Geneva, sans-serif;font-weight: bold">|</span>&nbsp;&nbsp;
+                    <a style="color:#806819;" href="#browser_compatibility">Browser compatibility</a><br/> <br/>
+                </div>
+
+
+                <div style="color:#474545;width:970px;font:18px Verdana;text-align:justify; text-justify:inter-ideograph;line-height:1.5; margin-left:8px;background-color:#f6f6f6;border:2px solid #fdfdfd;">
+                    <strong style="color:#33535C;font-size:22px"><a name="datasets_of_cecaflux"></a>The Datasets of CeCaFLUX</strong><br/>
+                    The CeCaFLUX database consists of about 551 metabolic reactions and 496 metabolites. About 100 reactions were collected from Keasling’s work while 400 reactions were collected from MetRxn Database. The central carbon metabolism reactions were from CeCaFDB. Each reaction is annotated with its popular name, stoichiometry and atom mapping information. These data can be incorporate into user’s project and facilitate their network model construction. CeCaFLUX supports standard text queries against its reactions datasets. On the reaction page, users can search through the reactions dataset using names of reaction or metabolite.
+                    <br/><img src="images/reaction_image.png" />
+
+                    <br/><br/><strong style="color:#33535C;font-size:22px"> <a name="how_to_prepare_a_model"></a>How to prepare a model for CeCaFLUX</strong> <br/>
+                    The construction of a simulation model for CeCaFLUX relies on parsing of an input FTBL file.<br/>
+                    Clicking the “Initialize” button on the main page or “Initialize” column on the navigation bar will create a new input page and jump to that page. An URL address was generated for this page and can be reserved by the user.<br/>
+                    The first row of this page is a button for download of the template of the input FTBL file. The second row is for upload and parse of the user-defined FTBL file. By clicking the “Choose File” button, user can select a pre-defined FTBL from his/hers computer. By clicking the “Parsing FTBL File” button, user can upload and parse the FTBL file. The model structure, experimental measurement and 13C labeled data of the FTBL file will be converted and delivered to the server immediately. If the FTBL file can’t pass the consistency and grammar check, an error report will be displayed.
+                    <br/><img src="images/how_to_prepare_a_model.png" />
+
+                    <br/><br/> <strong style="color:#33535C;font-size:22px"><a name="how_to_prepare_ftbl"></a>How to prepare the FTBL file for CeCaFLUX</strong><br/>
+                    <strong>1. Definition</strong><br/>
+                    The introduction about general FTBL file can be found at <a target="_blank" href="https://webee.technion.ac.il/Sites/People/YoninaEldar/Info/software/FIA/FIA/FIA_software_user_manual.pdf">FIA_software_user_manual</a>
+                    or <a target="_blank" href="https://media.nature.com/original/nature-assets/nprot/journal/v4/n6/extref/nprot.2009.58-S4.pdf">Step-by-step tutorial for 13CFLUX software.</a><br/>
+                    The CeCaFLUX FTBL file completely defines both the network and the experimental data for the 13C transient tracer experiment analysis. The file itself is a tab delimited text file, based upon the FTBL file format of the commonly used MFA estimation.<br/>
+                    Tab-delimited files are simply tables in text format. Moving to the cell on the right (next column) is done by inserting the separator (hitting TAB), and moving to the next row is done by moving down a line (hitting ENTER). Adding comments to the file is possible by using the “//” marker. Everything in the row following this mark will be ignored.<br/>
+                    The FTBL file is constructed out of various sections. Every section begins with the section name as the first column’s data and no other fields are filled within this row. After the section name row, its data is inserted according to the section’s format.<br/>
+                    <strong>2. The PROJECT section</strong><br/>
+                    The PROJECT section is a free text section, commonly used for documentation purposes. The suggested table includes field for the name of the project, its version, date and free text comments.<br/>
+                    <strong>3. The NETWORK section</strong><br/>
+                    The NETWORK section is used to define the entire stoichiometric network. The section is constructed as a table with 5 rows: FLUX_NAME, EDUCT_1, EDUCT_2, PRODUCT_1 and PRODUCT_2. Each flux is defined using 2 rows. The first indicates the flux name and its metabolic transactions. The second defines its atom transactions. Below is the definition for a flux V3 going from B + C to D.<br/>
+                    <img src="images/ftbl_1.png" /><br/>
+                    Note that since there is only one product metabolite, the column of PRODUCT_2 is left empty.<br/>
+                    <strong>4. The FLUX section</strong><br/>
+                    This section contains two sub sections NET and XCH. NET sub section is used to set the value for some pre-determined fluxes. A constrained flux is set to C followed by its value. Since CeCaFLUX will determine the free and dependent value automatically, the F and D symbol are meaningless here.<br/>
+                    <img src="images/ftbl_2.png" /><br/>
+                    The XCH section is used to specify which reaction is reversible. The reversibility is denoted by R while irreversibility by I.<br/>
+                    <img src="images/ftbl_3.png" /><br/>
+                    <strong>5. The EQUALITIES section</strong><br/>
+                    The EQUALITIES section is used to add equality constraints for the metabolic network and fluxes. In order to support the legacy of the FTBL file format, it has a subsection called NET (which is its only subsection). The EQUALITIES section contains a table with only two columns: VALUE and FORMULA. The formulas are automatically translated into their bi-directional equivalents.<br/>
+                    <img src="images/ftbl_4.png" /><br/>
+                    This declaration demands the value of V2 to be equal to 2 times the value of V3 (V2=3*V3).<br/>
+                    <strong>6. The POOL_SIZE section</strong><br/>
+                    The POOL_SIZE section is used to supply CeCaFLUX with concentration measurements values of the metabolites. The user supplies the software the value of the measurement along with its standard deviation. For example:<br/>
+                    <img src="images/ftbl_5.png" /><br/>
+                    Here we supply measurement of the metabolite “B” with the value of 0.4 (units here are some factor of reactions/sec, and are usually normalized by the input flux value) and standard deviation of 0.02.<br/>
+                    <strong>7. The LABEL_INPUT section</strong><br/>
+                    The LABEL_INPUT section is used to supply CeCaFLUX with known enrichments of its input fluxes. The data is supplied as follows:<br/>
+                    <img src="images/ftbl_6.png" /><br/>
+                    Here we provide CeCaFLUX with the isotopomer structure of the input metabolite. We specify that 50% of the input metabolite is the isotopomer 01, 5% completely unlabeled, 10% completely labeled and the rest is in 35%.<br/>
+                    <strong>8. The TIME_POINT section</strong><br/>
+                    The TIME_POINT section is used to supply CeCaFLUX with the time points of the sampling for measurement.<br/>
+                    <img src="images/ftbl_7.png" /><br/>
+                    <strong>9. The MASS SPECTROMETRY section</strong><br/>
+                    The MASS SPECTROMETRY section is used to supply CeCaFLUX with the data of the Mass Isotopomer measurements in a time series. Mass Isotopomer measurements specify relative strength of isotopomers, separated by the number of labeled carbon atoms in them. Time of this section has the same meaning and value as that in the TIME_POINT section. For one time point, multiple Mass Isotopomer measurements can be carried out and input for CeCaFLUX.<br/>
+                    <img src="images/ftbl_8.png" /><br/>
+                    Here we can see that the m0, m1 and m2 mass isotopomers  of the 1-2-3-4 (carbon atom) fragment of F was measured at time 1 and 2 with error 0.01.
+
+                    <br/><br/><strong style="color:#33535C;font-size:22px"><a name="start_the_optimization_process"></a>Start the optimization process</strong><br/>
+                    The last part of input page is for specifying the parameter of optimization process. CeCaFLUX provides two methods for modeling isotope differential equations: a constant-stepsize and a Cash-Karp/Runge-Kutta method. Users can select the preferred method from a drop-down menu. For the constant-stepsize method, the user must determine the step size. For the Cash-Karp method, users must determine the relative tolerance and absolute tolerance.<br/>
+                    After model construction, clicking the “Submit” button will start the optimization process and display to the optimization interface.<br/>
+                    <img src="images/SUBMIT.png" />
+
+                    <br/> <br/><strong style="color:#33535C;font-size:22px"><a name="optimization_interface_of_CeCaFLUX"></a>The optimization interface of CeCaFLUX</strong><br/>
+                    The optimization interface can be divided into 2 parts. The upper part dynamically displays the flux distribution map for each iteration. The lower part displays a line chart of the covariance-weighted sum of squared diﬀerence, where iteration number is the X-axis and the squared diﬀerence is the Y-axis. After each iteration, the adjusted flux map and its residual squares between the measured and simulated data are delivered to the graphing program using selected parameters.<br/>
+                    <img src="images/inter_1.png" /><br/>
+                    <img src="images/inter_2.png" />
+
+                    <br/><br/><strong style="color:#33535C;font-size:22px"><a name="output_of_CeCaFLUX"></a>The output of CeCaFLUX</strong><br/>
+                    After optimization, CeCaFLUX provides an interface through which users can interactively edit and layout the nodes and edges of the flux map of the optimal values and download the graph. The output interface includes the tabular flux values, the flux graph, goodness-of-fit and the confidence intervals of the estimated parameters.<br/>
+                    A metabolite is represented by a circle and the reaction by a triangle. An arrow denotes the direction of a reaction, and the width of the arrow is proportionate to the ﬂux value. A force-directed layout is applied to the flux map automatically. Additionally, all the size, color, position and other element attributes can be adjusted manually. Thus, the user can manually define the appearance of the ultimate flux distribution. Clicking the “DOWNLOAD” icon downloads the current graph in .png format.<br/>
+                    <img src="images/out_1.png" /><br/>
+                    The second part provides a general description of the output result, including a summary of the network structure, including the number of reactions, number of metabolites, degree of freedom, the covariance-weighted sum of squared diﬀerence and the goodness-of-fit. The third part is a tabular representation of the ultimate ﬂux output. The reaction names, flux value and confidence intervals are listed in this table.<br/>
+                    <img src="images/out_2.png" />
+
+                    <br/> <br/><strong style="color:#33535C;font-size:22px">
+                        <a name="browser_compatibility"></a>Browser compatibility</strong><br/>
+                    <div>
+                        <table class="datatable table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <td style="color:#474545;font:18px Verdana;">OS</td>
+                                <td style="color:#474545;font:18px Verdana;">Version</td>
+                                <td style="color:#474545;font:18px Verdana;">Chrome</td>
+                                <td style="color:#474545;font:18px Verdana;">Firefox</td>
+                                <td style="color:#474545;font:18px Verdana;">Microsoft Edge</td>
+                                <td style="color:#474545;font:18px Verdana;">Safari</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="color:#474545;font:18px Verdana;">Linux</td>
+                                <td style="color:#474545;font:18px Verdana;">CentOS 7</td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"></td>
+                                <td style="color:#474545;font:18px Verdana;"></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#474545;font:18px Verdana;">MacOS</td>
+                                <td style="color:#474545;font:18px Verdana;">HighSierra</td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"></td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                            </tr>
+                            <tr>
+                                <td style="color:#474545;font:18px Verdana;">Windows</td>
+                                <td style="color:#474545;font:18px Verdana;">10</td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"><img src="images/checked.png" width="20px" height="20px"/></td>
+                                <td style="color:#474545;font:18px Verdana;"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="common/foot::myfoot"></div>
+        </div>
+    </div>
+</div>
+<!-- end of wrapper -->
+</body>
+</html>

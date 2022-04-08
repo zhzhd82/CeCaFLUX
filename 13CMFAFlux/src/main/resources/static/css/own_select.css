@@ -1,0 +1,86 @@
+@CHARSET "UTF-8";
+input,
+textarea,
+select{
+ margin: 0;
+ font-size: 12px;
+ line-height:1.5;
+ font-family: Tahoma, SimSun, sans-serif;
+}
+.zSelect {
+ display:inline-block;
+ *zoom: 1;
+ *display: inline;
+ position:relative;
+ height:20px;
+ vertical-align:middle;
+}
+.zSelect .inputText {
+ line-height: 17px;
+ font-size:12px;
+ background: #f7fafc;
+ padding: 1px 17px 0 1px;
+ border: 1px solid #68a;
+ vertical-align: top;
+ cursor:default;
+ height: 17px;
+ margin:0;
+}
+.zSelect .arrowimg {
+ display:inline-block;
+ *zoom: 1;
+ *display: inline;
+ position:relative;
+ cursor:pointer;
+ width:18px;
+ height:20px;
+ left:-18px;
+ margin-right:-18px;
+ vertical-align: top;
+ outline:none;
+ background: url(./images/arrow.gif);
+}
+.zSelect .arrowimg:hover {
+ background: url(./images/arrow_over.gif);
+}
+.optgroup {
+ position:absolute;
+ z-index:666;
+ left:0;
+ top:19px;
+ color: #369;
+}
+.optgroup div.optionsDiv{
+ padding:1px;
+ overflow: auto;
+ overflow-x: hidden;
+ max-height:300px;
+ color: #369;
+ border: 1px solid #678;
+ background: #f7fafc;
+ width:auto;
+ z-index:888;
+ filter: Alpha(Opacity=90); opacity: 0.9;
+}
+.optgroup a, .optgroup a:visited{
+ font-size:12px;
+ text-decoration:none;
+ cursor:default;
+ display:block;
+ color: #369;
+ white-space: nowrap;
+ padding:1px 3px 2px 6px;
+ _padding:0 3px 0 6px;
+ height:18px;
+ min-width:2em;
+}
+.optgroup a:hover,.optgroup a.selected:hover{
+ color: #dff;
+ text-decoration:none;
+ background:#38d;
+}
+.optgroup a.selected,.optgroup a:focus{
+ color: #eff;
+ text-decoration:none;
+ background:#49e;
+}

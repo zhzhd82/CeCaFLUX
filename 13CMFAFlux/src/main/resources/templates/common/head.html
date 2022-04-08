@@ -1,0 +1,125 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="myhead">
+<style type="text/css">
+    #dd-navigation {
+        background: url('images/nav-bg.png') repeat-x;
+        clear: both;
+    }
+
+    #nav-strip ul li.nav-item, #nav-strip ul li.nav-item.active, #nav-strip ul li.nav-item:hover {
+        border-right: solid 1px #79dbe1;
+    }
+
+    #nav-strip {
+        clear: both;
+        margin: 0 auto;
+        width: 990px;
+        height: 34px;
+        line-height: 34px;
+        position: relative;
+        z-index: 16777265;
+    }
+
+    #nav-strip a:hover {
+        text-decoration: none;
+    }
+
+    #nav-strip ul li.nav-item {
+        display: inline;
+        float: left;
+        position: relative;
+        width: 90px;
+        height: 34px;
+        text-align: center;
+    }
+
+    #nav-strip ul li.nav-item:hover, #nav-strip ul li.nav-item.hover {
+        background: #3DA7C6;
+    }
+
+    #nav-strip ul li.nav-item:hover a, #nav-strip ul li.nav-item.hover a {
+        color: #fff;
+    }
+
+    #nav-strip ul li a {
+        font-weight: bold;
+        color: #FFFFFF;
+        display: block;
+        padding-top: 8px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    #nav-strip ul li a .primary-link, #nav-strip ul li.active a .primary-link, #nav-strip ul li.hover a .primary-link {
+        background: url('images/sprite-nav.gif') 100% -10px no-repeat transparent;
+        padding-right: 10px;
+    }
+
+    #nav-strip ul li .subnav ul {
+        float: left;
+        min-width: 260px;
+        margin: 0;
+    }
+
+    #nav-strip ul li .subnav ul li {
+        display: block;
+        border-left: none;
+        border-right: none;
+        float: none;
+        height: auto;
+        padding: 0;
+    }
+
+    /* double list view */
+    #nav-strip ul li .subnav ul.one {
+        width: 260px;
+        margin-bottom: 3px;
+    }
+
+    #nav-strip ul li .subnav ul.one li {
+        margin: 0;
+    }
+
+    #nav-strip ul li .subnav ul.one li a {
+        font-weight: bold;
+    }
+
+    #nav-strip ul li .subnav ul li a, #nav-strip ul li.nav-item:hover .subnav ul li a {
+        font-size: 14px;
+        color: #214181;
+        padding: 5px;
+        text-align: left;
+        height: 15px;
+    }
+
+    #nav-strip ul li .subnav ul li a, #nav-strip ul li.nav-item:hover .subnav ul li a {
+        white-space: normal;
+    }
+
+    #nav-strip ul li .subnav ul li.active a, #nav-strip ul li .subnav ul li a:hover {
+        color: #214181;
+        text-decoration: underline;
+    }
+</style>
+
+<div>
+    <div>
+        <div id="logo"
+             style="background:url(images/CeCaFLUX_logo.png) repeat-x
+		; height:330px; width:990px;float:left">
+        </div>
+    </div>
+
+    <div id="dd-navigation">
+        <div id="nav-strip">
+            <ul style="margin-left:0px;">
+                <li class="nav-item no-subnav"><a th:href="@{/index}"><span>Home</span></a></li>
+                <li class="nav-item no-subnav"><a th:href="@{/initializing}"><span>Initialize</span></a></li>
+                <li class="nav-item no-subnav"><a th:href="@{/genome_network_reaction}"><span>Reactions</span></a></li>
+                <li class="nav-item no-subnav"><a th:href="@{/cases}"><span>Cases</span></a></li>
+                <li class="nav-item no-subnav"><a th:href="@{/help}"><span>Tutorial</span></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="js/rcom-nav.js" type="text/javascript"></script>
+</html>
